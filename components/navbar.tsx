@@ -3,15 +3,19 @@ import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import logo from "@/public/logo.png"  // Assuming this is the correct path to your logo image
-import { signIn } from "next-auth/react"
-
+import { signIn ,signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
+import DropDownMenue from "@/app/components/DropDownMenue"
 export function Navbar() {
+  const { data: session ,status } = useSession()
+  console.log(status + "this the sesstion");
+  
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 bg-white shadow-sm dark:bg-gray-950/90">
+    <nav className="fixed inset-x-0 top-0 z-50 bg-white shadow-sm ">
       <div className="w-full max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-14 items-center">
           <Link href="/" className="text-2xl font-bold text-primary">
-            RecipeShare
+            Recipe <span className="font-extralight">Share</span>
           </Link>
           <nav className="hidden md:flex gap-4">
             <Link
@@ -43,12 +47,7 @@ export function Navbar() {
               Profile
             </Link>
           </nav>
-          <div className="flex items-center gap-4">
-            {/* Use onClick to trigger the signIn action */}
-            <Button variant="outline" size="sm" onClick={() => signIn()}>
-              Sign in
-            </Button>
-          </div>
+          <DropDownMenue/>
         </div>
       </div>
     </nav>
