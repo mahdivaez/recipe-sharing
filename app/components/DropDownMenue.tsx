@@ -17,13 +17,15 @@ const DropDownMenu = () => {
     <div>
       <DropdownMenu>
         {/* If the user is not signed in, clicking will trigger signIn() */}
-        <DropdownMenuTrigger className="flex items-center gap-2 bg-gradient-to-r  py-2 px-4 rounded-full shadow-md !hover:from-indigo-400 hover:to-purple-400 transition duration-200 ease-in-out" onClick={() => !session && signIn()}>
+        <DropdownMenuTrigger className="flex items-center  gap-2 bg-gradient-to-r  py-2 px-4 rounded-full shadow-md !hover:from-indigo-400 hover:to-purple-400 transition duration-200 ease-in-out" onClick={() => !session && signIn()}>
           {session ? session.user?.name : 'Sign In'}
         </DropdownMenuTrigger>
 
         {/* If the user is signed in, show the dropdown content */}
         {session ? (
-          <DropdownMenuContent>
+          <DropdownMenuContent
+            className=" mt-2 w-48 bg-white shadow-lg rounded-lg z-50" // Ensure visibility with z-index
+          >
             <DropdownMenuLabel>{session.user?.email}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>

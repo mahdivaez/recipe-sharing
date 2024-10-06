@@ -8,10 +8,9 @@ import { useSession } from "next-auth/react"
 import DropDownMenue from "@/app/components/DropDownMenue"
 export function Navbar() {
   const { data: session ,status } = useSession()
-  console.log(status + "this the sesstion");
   
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 bg-white shadow-sm ">
+    <nav className="fixed inset-x-1 top-0 z-50 bg-white shadow-sm ">
       <div className="w-full max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-14 items-center">
           <Link href="/" className="text-2xl font-bold text-primary">

@@ -83,3 +83,27 @@ model Authenticator {
  
   @@id([userId, credentialID])
 }
+
+
+model Recipe {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  ingredients Ingredient[]
+  instructions String
+  cookingTime Int
+  servings    Int
+  difficulty  String
+  image       String?  // Store image URL or path
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Ingredient {
+  id       Int    @id @default(autoincrement())
+  name     String
+  amount   String
+  unit     String
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId Int
+}
