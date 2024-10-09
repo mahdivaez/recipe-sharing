@@ -1,5 +1,5 @@
 datasource db {
-  provider = "mysql"  // or "mysql", "sqlite"
+  provider = "mysql"  // or "postgresql", "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -7,7 +7,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
- 
 model User {
   id            String          @id @default(cuid())
   name          String?
@@ -17,13 +16,11 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  // Optional for WebAuthn support
   Authenticator Authenticator[]
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
- 
+
 model Account {
   id                       String  @id @default(cuid())
   userId                   String  @unique
@@ -39,36 +36,31 @@ model Account {
   session_state            String?
   refresh_token_expires_in Int?
   user                     User?   @relation(fields: [userId], references: [id])
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
- 
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
   @@unique([provider, providerAccountId])
   @@index([userId])
 }
- 
+
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id])
- 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
- 
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   @@index([userId])
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
   @@unique([identifier, token])
 }
- 
-// Optional for WebAuthn support
+
 model Authenticator {
   credentialID         String  @unique
   userId               String
@@ -78,39 +70,71 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
- 
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@id([userId, credentialID])
 }
 
-
 model Recipe {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  ingredients Ingredient[]
-  instructions String       @db.Text  // Use Text for longer instructions
-  cookingTime Int
-  servings    Int
-  difficulty  String
-  image       String?  // Store image URL or path
-  mealType    MealType?  // Updated field to use enum
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               Int             @id @default(autoincrement())
+  title            String
+  description      String
+  ingredients      Ingredient[]    // One-to-many relationship with Ingredient
+  instructions     String          @db.Text // Use Text for longer instructions
+  cookingTime      Int             // Cooking time in minutes
+  servings         Int             // Number of servings
+  difficulty       String          // Recipe difficulty level
+  image            String?         // Store image URL or path
+  mealType         MealType?       // Enum for meal type (BREAKFAST, LUNCH, DINNER)
+  nutritionalInfo  NutritionalInfo? // One-to-one relationship with NutritionalInfo
+  reviews          Review[]        // One-to-many relationship with Review
+  winePairings     WinePairing[]   // One-to-many relationship with WinePairing
+  estimatedCost    Float           // Estimated cost of ingredients
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 }
 
-
-
 model Ingredient {
-  id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   name     String
   amount   String
   unit     String
-  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipe   Recipe  @relation(fields: [recipeId], references: [id])
   recipeId Int
 }
 
+// Nutritional Information (One-to-One with Recipe)
+model NutritionalInfo {
+  id       Int     @id @default(autoincrement())
+  calories Int     // Number of calories
+  protein  Float   // Protein in grams
+  carbs    Float   // Carbs in grams
+  fat      Float   // Fat in grams
+  fiber    Float   // Fiber in grams
+  recipe   Recipe  @relation(fields: [recipeId], references: [id])  // Define relation here
+  recipeId Int     @unique  // Foreign key to Recipe must be unique for one-to-one relationship
+}
+
+// Review model for user reviews on recipes
+model Review {
+  id       Int     @id @default(autoincrement())
+  user     String  // User name
+  rating   Int     // Rating from 1 to 5
+  comment  String  // Review comment
+  recipe   Recipe  @relation(fields: [recipeId], references: [id])
+  recipeId Int     // Foreign key to Recipe
+}
+
+// Wine Pairing suggestions (One-to-many with Recipe)
+model WinePairing {
+  id       Int     @id @default(autoincrement())
+  wineName String  // Wine name
+  recipe   Recipe  @relation(fields: [recipeId], references: [id])
+  recipeId Int     // Foreign key to Recipe
+}
+
+// Enum for meal types
 enum MealType {
   BREAKFAST
   LUNCH
