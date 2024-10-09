@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Recipe` ADD COLUMN `mealType` ENUM('BREAKFAST', 'LUNCH', 'DINNER') NULL;

@@ -90,14 +90,17 @@ model Recipe {
   title       String
   description String
   ingredients Ingredient[]
-  instructions String
+  instructions String       @db.Text  // Use Text for longer instructions
   cookingTime Int
   servings    Int
   difficulty  String
   image       String?  // Store image URL or path
+  mealType    MealType?  // Updated field to use enum
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+
 
 model Ingredient {
   id       Int    @id @default(autoincrement())
@@ -106,4 +109,10 @@ model Ingredient {
   unit     String
   recipe   Recipe @relation(fields: [recipeId], references: [id])
   recipeId Int
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
 }

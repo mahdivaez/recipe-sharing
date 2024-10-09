@@ -18,14 +18,14 @@ export function Navbar() {
           </Link>
           <nav className="hidden md:flex gap-4">
             <Link
-              href="#"
+              href="/recipes/new"
               className="font-medium flex items-center text-sm transition-colors hover:underline"
               prefetch={false}
             >
               Create
             </Link>
             <Link
-              href="#"
+              href="/recipes/explore"
               className="font-medium flex items-center text-sm transition-colors hover:underline"
               prefetch={false}
             >
