@@ -11,8 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import confetti from 'canvas-confetti';
-
-type MealType = 'BREAKFAST' | 'LUNCH' | 'DINNER';
+import { MealType } from "@prisma/client";
 
 const mealTypeIcons: Record<MealType, React.ReactNode> = {
   BREAKFAST: <Coffee className="w-6 h-6" />,
@@ -46,16 +45,18 @@ interface Recipe {
   id: number;
   title: string;
   description: string;
-  mealType: MealType | null;
+  mealType: MealType;
   cookingTime: number;
   servings: number;
   difficulty: string;
   ingredients: Ingredient[];
   instructions: string;
-  nutritionalInfo: NutritionalInfo;
+  nutritionalInfo: NutritionalInfo | null;
   reviews: Review[];
   winePairings: string[];
   estimatedCost: number;
+  image: string | null;
+  chefTips: string[];
 }
 
 interface Props {
@@ -127,72 +128,68 @@ export default function RecipeDetailsClient({ recipe }: Props) {
   };
 
   const handleAddReview = () => {
-    // In a real application, this would send the review to the server
     console.log('New review:', newReview);
     setNewReview({ rating: 0, comment: '' });
   };
 
   const handleAddToMealPlan = () => {
-    // In a real application, this would integrate with a meal planning system
     setIsAddedToMealPlan(true);
     setTimeout(() => setIsAddedToMealPlan(false), 3000);
   };
 
   return (
     <div className="container mt-20 mx-auto px-4 py-8 max-w-4xl">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Card className="mb-8 overflow-hidden bg-gradient-to-r from-blue-100 to-purple-100">
-          <CardContent className="p-6">
-            <h1 className="text-4xl font-bold mb-4 text-primary">{recipe.title}</h1>
-            <p className="text-gray-600 text-lg mb-6">{recipe.description}</p>
-            <div className="flex flex-wrap gap-4 mb-6">
-              {recipe.mealType && (
-                <Badge variant="outline" className="text-lg py-2 px-4 bg-blue-200 text-blue-800">
-                  {mealTypeIcons[recipe.mealType]}
-                  <span className="ml-2">{recipe.mealType}</span>
-                </Badge>
-              )}
-              <Badge variant="outline" className="text-lg py-2 px-4 bg-green-200 text-green-800">
-                <Clock className="w-5 h-5 mr-2" />
-                {recipe.cookingTime} mins
-              </Badge>
-              <Badge variant="outline" className="text-lg py-2 px-4 bg-yellow-200 text-yellow-800">
-                <Users className="w-5 h-5 mr-2" />
-                {recipe.servings} servings
-              </Badge>
-              <Badge variant="outline" className="text-lg py-2 px-4 bg-red-200 text-red-800">
-                <ChefHat className="w-5 h-5 mr-2" />
-                {recipe.difficulty}
-              </Badge>
-              <Badge variant="outline" className="text-lg py-2 px-4 bg-purple-200 text-purple-800">
-                <DollarSign className="w-5 h-5 mr-2" />
-                ${recipe.estimatedCost}
-              </Badge>
-            </div>
-            <div className="flex gap-4">
-              <Button onClick={handleLike} variant={isLiked ? "default" : "outline"} size="lg" className="flex-1 transition-all duration-300 ease-in-out transform hover:scale-105 bg-pink-500 hover:bg-pink-600 text-white">
-                <Heart className={`mr-2 h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
-                {isLiked ? "Liked" : "Like"}
-              </Button>
-              <Button variant="outline" size="lg" className="flex-1 transition-all duration-300 ease-in-out transform hover:scale-105 bg-blue-500 hover:bg-blue-600 text-white">
-                <Share2 className="mr-2 h-5 w-5" />
-                Share
-              </Button>
-              <Button variant="outline" size="lg" className="flex-1 transition-all duration-300 ease-in-out transform hover:scale-105 bg-green-500 hover:bg-green-600 text-white">
-                <Printer className="mr-2 h-5 w-5" />
-                Print
-              </Button>
-              <Button onClick={handleAddToMealPlan} variant="outline" size="lg" className="flex-1 transition-all duration-300 ease-in-out transform hover:scale-105 bg-orange-500 hover:bg-orange-600 text-white">
-                <Calendar className="mr-2 h-5 w-5" />
-                {isAddedToMealPlan ? "Added!" : "Add to Meal Plan"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="mb-8 overflow-hidden bg-gradient-to-r from-blue-100 to-purple-100">
+        <CardContent className="p-6">
+          <h1 className="text-4xl font-bold mb-4 text-primary">{recipe.title}</h1>
+          <p className="text-gray-600 text-lg mb-6">{recipe.description}</p>
+          <div className="flex flex-wrap gap-4 mb-6">
+            <Badge variant="outline" className="text-lg py-2 px-4 bg-blue-200 text-blue-800">
+              {mealTypeIcons[recipe.mealType]}
+              <span className="ml-2">{recipe.mealType}</span>
+            </Badge>
+            <Badge variant="outline" className="text-lg py-2 px-4 bg-green-200 text-green-800">
+              <Clock className="w-5 h-5 mr-2" />
+              {recipe.cookingTime} mins
+            </Badge>
+            <Badge variant="outline" className="text-lg py-2 px-4 bg-yellow-200 text-yellow-800">
+              <Users className="w-5 h-5 mr-2" />
+              {recipe.servings} servings
+            </Badge>
+            <Badge variant="outline" className="text-lg py-2 px-4 bg-red-200 text-red-800">
+              <ChefHat className="w-5 h-5 mr-2" />
+              {recipe.difficulty}
+            </Badge>
+            <Badge variant="outline" className="text-lg py-2 px-4 bg-purple-200 text-purple-800">
+              <DollarSign className="w-5 h-5 mr-2" />
+              ${recipe.estimatedCost}
+            </Badge>
+          </div>
+          <div className="flex gap-4">
+            <Button onClick={handleLike} variant={isLiked ? "default" : "outline"} size="lg" className="flex-1 transition-all duration-300 ease-in-out transform hover:scale-105 bg-pink-500 hover:bg-pink-600 text-white">
+              <Heart className={`mr-2 h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
+              {isLiked ? "Liked" : "Like"}
+            </Button>
+            <Button variant="outline" size="lg" className="flex-1 transition-all duration-300 ease-in-out transform hover:scale-105 bg-blue-500 hover:bg-blue-600 text-white">
+              <Share2 className="mr-2 h-5 w-5" />
+              Share
+            </Button>
+            <Button variant="outline" size="lg" className="flex-1 transition-all duration-300 ease-in-out transform hover:scale-105 bg-green-500 hover:bg-green-600 text-white">
+              <Printer className="mr-2 h-5 w-5" />
+              Print
+            </Button>
+            <Button onClick={handleAddToMealPlan} variant="outline" size="lg" className="flex-1 transition-all duration-300 ease-in-out transform hover:scale-105 bg-orange-500 hover:bg-orange-600 text-white">
+              <Calendar className="mr-2 h-5 w-5" />
+              {isAddedToMealPlan ? "Added!" : "Add to Meal Plan"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
         <Card className="mb-8 overflow-hidden bg-gradient-to-r from-yellow-100 to-orange-100">
           <CardContent className="p-6">
@@ -231,23 +228,23 @@ export default function RecipeDetailsClient({ recipe }: Props) {
             <h2 className="text-2xl font-semibold mb-4">Nutritional Information</h2>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div className="bg-white p-4 rounded-lg shadow-md text-center">
-                <p className="text-lg font-semibold">{recipe.nutritionalInfo.calories * servingMultiplier}</p>
+                <p className="text-lg font-semibold">{recipe.nutritionalInfo?.fat! * servingMultiplier}</p>
                 <p className="text-sm text-gray-600">Calories</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow-md text-center">
-                <p className="text-lg font-semibold">{(recipe.nutritionalInfo.protein * servingMultiplier).toFixed(1)}g</p>
+                <p className="text-lg font-semibold">{(recipe.nutritionalInfo?.protein! * servingMultiplier).toFixed(1)}g</p>
                 <p className="text-sm text-gray-600">Protein</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow-md text-center">
-                <p className="text-lg font-semibold">{(recipe.nutritionalInfo.carbs * servingMultiplier).toFixed(1)}g</p>
+                <p className="text-lg font-semibold">{(recipe.nutritionalInfo?.carbs! * servingMultiplier).toFixed(1)}g</p>
                 <p className="text-sm text-gray-600">Carbs</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow-md text-center">
-                <p className="text-lg font-semibold">{(recipe.nutritionalInfo.fat * servingMultiplier).toFixed(1)}g</p>
+                <p className="text-lg font-semibold">{(recipe.nutritionalInfo?.fat! * servingMultiplier).toFixed(1)}g</p>
                 <p className="text-sm text-gray-600">Fat</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow-md text-center">
-                <p className="text-lg font-semibold">{(recipe.nutritionalInfo.fiber * servingMultiplier).toFixed(1)}g</p>
+                <p className="text-lg font-semibold">{(recipe.nutritionalInfo?.fiber!  * servingMultiplier).toFixed(1)}g</p>
                 <p className="text-sm text-gray-600">Fiber</p>
               </div>
             </div>
