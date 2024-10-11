@@ -149,35 +149,36 @@ const TestimonialCard = ({ text, author, image }: { text: string; author: string
 )
 
 const TestimonialMarquee = () => {
-  const testimonials = [
-    { id: 1, text: "This website changed my cooking game!", author: "Sarah L.", Image: {chef3} },
-    { id: 2, text: "I've discovered so many new recipes here.", author: "Mike T.", Image: {chef2}},
-    { id: 3, text: "The community here is amazing and supportive.", author: "Emily R.", Image: {chef1} },
-    { id: 4, text: "I love how easy it is to find new recipes.", author: "David M.", Image: {chef1}},
-    { id: 5, text: "The step-by-step instructions are so helpful.", author: "Lisa K.", Image: {chef2} },
-  ]
-  const testimonialsImages = [
-    { id: 1, text: "Chef 1", Image: {chef1} },
-    { id: 2, text: "Chef 2", Image: {chef2} },
-    { id: 3, text: "Chef 3", Image: {chef3} },
-  ]
-
-  return (
-    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 py-16 overflow-hidden">
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          className="flex space-x-8"
-          animate={{ x: ["0%", "-100%"] }}
-          transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
-        >
-          {testimonials.concat(testimonials).map((testimonial, index) => (
-            <TestimonialCard key={index} text={testimonial.text} author={testimonial.author} image={chef2}/>
-          ))}
-        </motion.div>
+    const testimonials = [
+      { id: 1, text: "This website changed my cooking game!", author: "Sarah L.", image: chef3.src },
+      { id: 2, text: "I've discovered so many new recipes here.", author: "Mike T.", image: chef2.src },
+      { id: 3, text: "The community here is amazing and supportive.", author: "Emily R.", image: chef1.src },
+      { id: 4, text: "I love how easy it is to find new recipes.", author: "David M.", image: chef1.src },
+      { id: 5, text: "The step-by-step instructions are so helpful.", author: "Lisa K.", image: chef2.src },
+    ]
+  
+    return (
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 py-16 overflow-hidden">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            className="flex space-x-8"
+            animate={{ x: ["0%", "-100%"] }}
+            transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+          >
+            {testimonials.concat(testimonials).map((testimonial, index) => (
+              <TestimonialCard
+                key={index}
+                text={testimonial.text}
+                author={testimonial.author}
+                image={testimonial.image}  // Now passing the `src` property
+              />
+            ))}
+          </motion.div>
+        </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
+  
 
 
 export default function Home() {
