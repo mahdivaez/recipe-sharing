@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+datasource db {
+  provider = "mysql"  // or "postgresql", "sqlite"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  username      String?         @unique
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  Authenticator Authenticator[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Account {
+  id                       String  @id @default(cuid())
+  userId                   String  @unique
+  type                     String
+  provider                 String
+  providerAccountId        String
+  refresh_token            String? @db.Text
+  access_token             String? @db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @db.Text
+  session_state            String?
+  refresh_token_expires_in Int?
+  user                     User?   @relation(fields: [userId], references: [id])
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+  @@unique([identifier, token])
+}
+
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model Recipe {
+  id              Int              @id @default(autoincrement())
+  title           String
+  description     String
+  mealType        MealType
+  cookingTime     Int
+  servings        Int
+  difficulty      String
+  ingredients     Ingredient[]
+  steps           Step[]
+  nutritionalInfo NutritionalInfo?
+  winePairings    WinePairing[]
+  estimatedCost   Float
+  image           String?
+  chefTips        ChefTip[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  reviews         Review[]
+}
+
+model Ingredient {
+  id       Int    @id @default(autoincrement())
+  name     String
+  amount   String
+  unit     String
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId Int
+}
+
+model Step {
+  id          Int    @id @default(autoincrement())
+  instruction String
+  order       Int
+  recipe      Recipe @relation(fields: [recipeId], references: [id])
+  recipeId    Int
+}
+
+model NutritionalInfo {
+  id       Int    @id @default(autoincrement())
+  calories Float
+  protein  Float
+  carbs    Float
+  fat      Float
+  fiber    Float
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId Int    @unique
+}
+
+model WinePairing {
+  id       Int    @id @default(autoincrement())
+  wineName String
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId Int
+}
+
+model ChefTip {
+  id       Int    @id @default(autoincrement())
+  tip      String
+  recipe   Recipe @relation(fields: [recipeId], references: [id])
+  recipeId Int
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  comment   String
+  user      String
+  recipe    Recipe   @relation(fields: [recipeId], references: [id])
+  recipeId  Int
+  createdAt DateTime @default(now())
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+}
